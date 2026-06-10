@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "get_ticket_prices", "description": "查询票价信息", "version": "1.0.0"},
+  "servers": [{"url": "http://localhost:8000"}],
+  "paths": {
+    "/api/v1/tickets/prices": {
+      "get": {
+        "operationId": "get_ticket_prices",
+        "summary": "查询票价信息",
+        "description": "查询乐园所有票种和价格，包括成人票、儿童票、家庭套票、长者票的原价和线上优惠价",
+        "responses": {"200": {"description": "成功返回票价列表"}}
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+# 1. 进入项目目录
+cd Dify_project/Project
+
+# 2. 安装依赖
+pip install -r requirements.txt
+
+# 3. 配置环境变量
+cp .env.example .env
+# 编辑 .env，配置 MySQL 连接信息
+
+# 4. 初始化数据库（建表 + 灌入全部虚拟数据）
+python -m scripts.init_data
+
+# 5. 启动后端（含前端静态文件）
+conda activate py_base
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+conda run -n py_base uvicorn app.main:app --host 0.0.0.0 --port 8080
+
+# 6. 访问
+# 前端页面: http://localhost:8000/web/index.html
+# API 文档: http://localhost:8000/docs
+# 管理员登录: 13800000000 / Admin@123

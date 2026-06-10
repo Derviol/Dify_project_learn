@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "get_facilities", "description": "查询园区便利设施", "version": "1.0.0"},
+  "servers": [{"url": "http://localhost:8000"}],
+  "paths": {
+    "/api/v1/facilities": {
+      "get": {
+        "operationId": "get_facilities",
+        "summary": "查询园区便利设施",
+        "description": "查询母婴室、卫生间、餐厅、储物柜、医务室等设施的位置和信息",
+        "parameters": [
+          {"name": "type", "in": "query", "description": "设施类型：nursing(母婴室)、restroom(卫生间)、restaurant(餐厅)、snack(小吃)、locker(储物柜)、medical(医务室)", "required": false, "schema": {"type": "string"}},
+          {"name": "zone", "in": "query", "description": "所在区域", "required": false, "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "成功返回设施列表"}}
+      }
+    }
+  }
+}

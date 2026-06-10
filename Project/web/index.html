@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乐乐亲子乐园</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/vue-router@4/dist/vue-router.global.prod.js"></script>
+<style>
+:root{--primary:#FF6B35;--primary-light:#FF8F5E;--secondary:#4ECDC4;--bg:#FFF9F0;--card:#FFF;--text:#2D3436;--text2:#636E72;--text3:#B2BEC3;--border:#F0E6D8;--shadow:0 4px 20px rgba(0,0,0,.08);--radius:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;font-family:inherit}
+input,textarea,select{font-family:inherit;outline:none}
+.container{max-width:1100px;margin:0 auto;padding:0 2rem}
+
+/* Nav */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 2rem;width:100%;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.15rem;color:var(--primary)}
+.nav-brand .logo{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),#FF6B9D);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{font-size:.9rem;color:var(--text2);font-weight:500;padding:6px 0;border-bottom:2px solid transparent;transition:.2s}
+.nav-links a:hover,.nav-links a.router-link-active{color:var(--primary);border-color:var(--primary)}
+.nav-user{display:flex;align-items:center;gap:10px}
+.nav-user .nick{font-size:.85rem;color:var(--text2)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;font-size:.88rem;font-weight:600;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;box-shadow:0 3px 12px rgba(255,107,53,.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 20px rgba(255,107,53,.35)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:5px 14px;font-size:.8rem;border-radius:14px}
+.btn-ghost{background:none;color:var(--text2);padding:6px 12px}
+.btn-ghost:hover{color:var(--primary)}
+
+/* Hero */
+.hero{padding:60px 2rem 40px;background:linear-gradient(135deg,#FFF5E8,#FFE8D6,#FFDDD2);text-align:center}
+.hero h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--text),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+.hero p{color:var(--text2);font-size:1rem;max-width:500px;margin:0 auto 24px}
+.hero-stats{display:flex;justify-content:center;gap:36px;margin-top:24px}
+.hero-stat .num{font-size:1.5rem;font-weight:800;color:var(--primary)}
+.hero-stat .label{font-size:.78rem;color:var(--text3)}
+
+/* Cards */
+.section{padding:40px 2rem}
+.section-title{font-size:1.3rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);transition:.25s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--primary)}
+.card-icon{font-size:2rem;margin-bottom:10px}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:4px}
+.card p{font-size:.82rem;color:var(--text2);line-height:1.5}
+.tag{display:inline-block;background:rgba(255,107,53,.08);color:var(--primary);padding:2px 10px;border-radius:10px;font-size:.72rem;font-weight:600;margin-top:8px}
+
+/* Chat */
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 60px);max-width:800px;margin:0 auto}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.msg{display:flex;gap:8px;max-width:85%;animation:msgIn .3s}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.msg.bot .msg-avatar{background:rgba(255,107,53,.1)}
+.msg.user .msg-avatar{background:rgba(78,205,196,.15)}
+.msg-bubble{padding:10px 14px;border-radius:12px;font-size:.88rem;line-height:1.6;word-break:break-word}
+.msg.bot .msg-bubble{background:var(--bg);border:1px solid var(--border);border-top-left-radius:3px}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-top-right-radius:3px}
+.msg-bubble h1,.msg-bubble h2,.msg-bubble h3{margin:8px 0 4px;font-weight:700}
+.msg-bubble h1{font-size:1rem}.msg-bubble h2{font-size:.95rem}.msg-bubble h3{font-size:.9rem}
+.msg-bubble ul,.msg-bubble ol{margin:4px 0;padding-left:18px}
+.msg-bubble li{margin-bottom:2px}
+.msg-bubble strong{font-weight:700}
+.msg-bubble code{background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px;font-size:.82em}
+.msg-bubble hr{border:none;border-top:1px solid var(--border);margin:8px 0}
+.thinking{display:flex;align-items:center;gap:8px;padding:4px 0}
+.thinking .dot{width:8px;height:8px;background:var(--primary);border-radius:50%;animation:pulse 1s infinite}
+.thinking .dot:nth-child(2){animation-delay:.2s}.thinking .dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.cursor{color:var(--primary);font-weight:bold;animation:blink .8s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Quick actions */
+.quick-bar{padding:10px 20px;border-top:1px solid var(--border);background:#FEFCF9;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.quick-bar .label{font-size:.75rem;color:var(--text3);margin-right:4px}
+.quick-btn{background:#fff;border:1px solid var(--border);padding:4px 12px;border-radius:14px;font-size:.78rem;color:var(--text2);transition:.2s}
+.quick-btn:hover{border-color:var(--primary);color:var(--primary)}
+
+/* Input area */
+.input-area{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;background:#fff}
+.input-area textarea{flex:1;border:1px solid var(--border);border-radius:12px;padding:10px 14px;font-size:.88rem;resize:none;min-height:40px;max-height:100px;line-height:1.5;transition:.2s}
+.input-area textarea:focus{border-color:var(--primary)}
+.send-btn{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-btn:disabled{opacity:.5}
+
+/* Auth */
+.auth-page{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-box{background:#fff;border-radius:var(--radius);padding:36px;width:100%;max-width:380px;border:1px solid var(--border)}
+.auth-box h2{text-align:center;font-size:1.3rem;margin-bottom:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.82rem;color:var(--text2);margin-bottom:6px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.88rem;transition:.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
+.auth-box .btn{width:100%;justify-content:center;padding:12px;margin-top:8px}
+.auth-switch{text-align:center;margin-top:16px;font-size:.82rem;color:var(--text3)}
+
+/* Ticket */
+.ticket-card{background:#fff;border-radius:var(--radius);padding:20px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.ticket-card:hover{border-color:var(--primary)}
+.ticket-info h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+.ticket-info p{font-size:.82rem;color:var(--text2)}
+.ticket-price{font-size:1.3rem;font-weight:800;color:var(--primary)}
+.ticket-price .original{text-decoration:line-through;color:var(--text3);font-size:.8rem;font-weight:400;margin-left:6px}
+
+/* Queue */
+.queue-card{background:#fff;border-radius:var(--radius);padding:20px;border:1px solid var(--border);text-align:center}
+.queue-card .number{font-size:2.5rem;font-weight:800;color:var(--primary)}
+.queue-card .label{font-size:.82rem;color:var(--text2)}
+
+/* Schedule */
+.schedule-item{background:#fff;border-radius:12px;padding:16px;border:1px solid var(--border);display:flex;gap:16px;align-items:center;transition:.2s}
+.schedule-item:hover{border-color:var(--primary)}
+.schedule-time{font-size:1.1rem;font-weight:700;color:var(--primary);min-width:60px}
+.schedule-info h4{font-size:.92rem;font-weight:600;margin-bottom:2px}
+.schedule-info p{font-size:.78rem;color:var(--text2)}
+
+/* Footer */
+.footer{text-align:center;padding:24px 2rem;color:var(--text3);font-size:.78rem;border-top:1px solid var(--border);background:#fff}
+
+/* Responsive */
+@media(max-width:768px){
+.nav-links{display:none}
+.grid-4{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:1fr}
+.hero h1{font-size:1.6rem}
+.hero-stats{gap:20px}
+.container{padding:0 1rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <router-link to="/" class="nav-brand"><span class="logo">🎠</span>乐乐亲子乐园</router-link>
+      <div class="nav-links">
+        <router-link to="/">首页</router-link>
+        <router-link to="/projects">项目</router-link>
+        <router-link to="/chat">AI 助手</router-link>
+        <router-link to="/tickets">购票</router-link>
+        <router-link to="/orders">订单</router-link>
+        <router-link to="/queue">排队</router-link>
+        <router-link to="/weather">天气</router-link>
+        <router-link to="/schedules">演出</router-link>
+      </div>
+      <div class="nav-user">
+        <template v-if="user.isLoggedIn">
+          <router-link to="/profile" class="nick" style="cursor:pointer;text-decoration:none">{{ user.nickname }}</router-link>
+          <button class="btn btn-ghost btn-sm" @click="user.logout();$router.push('/')">退出</button>
+        </template>
+        <router-link v-else to="/login" class="btn btn-outline btn-sm">登录</router-link>
+      </div>
+    </div>
+  </nav>
+
+  <router-view></router-view>
+
+  <footer class="footer">
+    乐乐亲子乐园 — 基于 Dify + FastAPI + Vue 3 构建的智能服务系统（学习项目）
+  </footer>
+</div>
+
+<script>
+const {createApp, ref, reactive, computed, onMounted, onUnmounted, watch, nextTick} = Vue;
+const {createRouter, createWebHashHistory} = VueRouter;
+
+// ==================== API ====================
+const BASE = '/api/v1';
+const token = ref(localStorage.getItem('token') || '');
+const refreshTokenVal = ref(localStorage.getItem('refresh') || '');
+
+async function api(path, opts={}) {
+  try {
+    const headers = {'Content-Type':'application/json'};
+    if (token.value) headers['Authorization'] = 'Bearer ' + token.value;
+    const resp = await fetch(BASE + path, {headers, ...opts});
+    if (resp.status === 401) {
+      token.value = '';
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh');
+      return {code: 40101, message: '未登录或登录已过期', data: null};
+    }
+    if (!resp.ok) return {code: resp.status, message: '请求失败 (' + resp.status + ')', data: null};
+    const data = await resp.json();
+    if (data.code === 40101 || data.code === 40102) {
+      token.value = '';
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh');
+    }
+    return data;
+  } catch(e) {
+    return {code: -1, message: '网络错误，请检查服务是否启动', data: null};
+  }
+}
+const get = (p) => api(p);
+const post = (p, body) => api(p, {method:'POST', body:JSON.stringify(body)});
+
+// ==================== User Store ====================
+const user = reactive({
+  token: token,
+  nickname: localStorage.getItem('nick') || '',
+  isLoggedIn: computed(() => !!token.value),
+  async login(phone, password) {
+    const r = await post('/auth/login', {phone, password});
+    if (r.code===200) { this.setAuth(r.data); await this.fetchProfile(); return true; }
+    alert(r.message); return false;
+  },
+  async register(phone, password, nickname) {
+    const r = await post('/auth/register', {phone, password, nickname});
+    if (r.code===200) { this.setAuth(r.data); await this.fetchProfile(); return true; }
+    alert(r.message); return false;
+  },
+  async fetchProfile() {
+    const r = await get('/users/me');
+    if (r.code === 200 && r.data && r.data.nickname) {
+      this.nickname = r.data.nickname;
+      localStorage.setItem('nick', this.nickname);
+    }
+  },
+  setAuth(d) {
+    token.value = d.access_token; refreshTokenVal.value = d.refresh_token;
+    localStorage.setItem('token', d.access_token); localStorage.setItem('refresh', d.refresh_token);
+    this.nickname = '用户' + d.user_id; localStorage.setItem('nick', this.nickname);
+  },
+  logout() {
+    token.value=''; this.nickname='';
+    localStorage.removeItem('token'); localStorage.removeItem('refresh'); localStorage.removeItem('nick');
+  }
+});
+
+// ==================== Markdown ====================
+function md(t) {
+  if (!t) return '';
+  let h = t;
+  h = h.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+  h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+  h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  h = h.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  h = h.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  h = h.replace(/^---$/gm, '<hr>');
+  h = h.replace(/^[*\-•] (.+)$/gm, '<li>$1</li>');
+  h = h.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
+  h = h.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+  h = h.replace(/\n(?!<)/g, '<br>');
+  h = h.replace(/(<br>){3,}/g, '<br><br>');
+  return h;
+}
+function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+// ==================== Pages ====================
+
+// Home
+const HomePage = {
+  template: `
+  <div>
+    <section class="hero">
+      <h1>乐乐亲子乐园</h1>
+      <p>专为 0-12 岁家庭打造的沉浸式亲子主题乐园，集游乐、动物互动、科普教育、演艺表演于一体</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <router-link to="/projects" class="btn btn-primary">🗺️ 探索项目</router-link>
+        <router-link to="/chat" class="btn btn-outline">🤖 AI 助手</router-link>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">15</div><div class="label">游乐项目</div></div>
+        <div class="hero-stat"><div class="num">6</div><div class="label">主题区域</div></div>
+        <div class="hero-stat"><div class="num">12</div><div class="label">精彩演出</div></div>
+        <div class="hero-stat"><div class="num">4</div><div class="label">主题餐厅</div></div>
+      </div>
+    </section>
+    <section class="section container">
+      <div class="section-title">🗺️ 六大主题区域</div>
+      <div class="grid-3">
+        <router-link to="/projects" class="card" v-for="z in zones" :key="z.name">
+          <div class="card-icon">{{z.icon}}</div>
+          <h3>{{z.name}}</h3>
+          <p>{{z.desc}}</p>
+          <span class="tag">{{z.tag}}</span>
+        </router-link>
+      </div>
+    </section>
+    <section class="section container">
+      <div class="section-title">🌟 精彩推荐</div>
+      <div class="grid-3">
+        <div class="card" v-for="h in highlights" :key="h.name">
+          <div class="card-icon">{{h.icon}}</div>
+          <h3>{{h.name}}</h3>
+          <p>{{h.desc}}</p>
+          <div style="margin-top:8px;font-size:.78rem;color:var(--text3)">{{h.meta}}</div>
+        </div>
+      </div>
+    </section>
+  </div>`,
+  setup() {
+    return {
+      zones: [
+        {icon:'🏰',name:'梦幻城堡区',desc:'旋转木马、摩天轮，经典梦幻项目',tag:'全年龄'},
+        {icon:'🦁',name:'动物互动区',desc:'喂小羊、摸兔子，近距离接触小动物',tag:'0-8岁'},
+        {icon:'🌊',name:'海洋探险区',desc:'海底隧道、海洋剧场，探索海洋世界',tag:'全年龄'},
+        {icon:'🚀',name:'冒险刺激区',desc:'过山车、碰碰车，勇敢者的挑战',tag:'6-12岁'},
+        {icon:'🔬',name:'科普教育区',desc:'恐龙博物馆、鸟语林，玩中学知识',tag:'3-12岁'},
+        {icon:'🎪',name:'欢乐农场区',desc:'小火车、田园亲子乐',tag:'全年龄'},
+      ],
+      highlights: [
+        {icon:'🎠',name:'皇家旋转木马',desc:'全年龄经典项目，绚丽灯光与悠扬音乐',meta:'🕐 10分钟 · 👶 全年龄 · 📍 梦幻城堡区'},
+        {icon:'🐬',name:'海洋动物表演',desc:'海豚海狮联袂演出，每日三场',meta:'🕐 30分钟 · 👶 全年龄 · 📍 海洋剧场'},
+        {icon:'🚂',name:'环园小火车',desc:'悠闲环绕全园，欣赏各区域风光',meta:'🕐 15分钟 · 👶 全年龄 · 📍 欢乐农场区'},
+      ],
+    }
+  }
+};
+
+// Projects
+const ProjectsPage = {
+  template: `
+  <div class="section container">
+    <div class="section-title">🗺️ 全部项目</div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="btn btn-sm" :class="filter===''?'btn-primary':'btn-outline'" @click="filter=''">全部</button>
+      <button class="btn btn-sm" :class="filter==='ride'?'btn-primary':'btn-outline'" @click="filter='ride'">🎠 游乐设施</button>
+      <button class="btn btn-sm" :class="filter==='venue'?'btn-primary':'btn-outline'" @click="filter='venue'">🏛️ 主题场馆</button>
+      <button class="btn btn-sm" :class="filter==='show'?'btn-primary':'btn-outline'" @click="filter='show'">🎭 表演活动</button>
+    </div>
+    <div class="grid-4">
+      <div class="card" v-for="p in filtered" :key="p.id" style="cursor:pointer" @click="selected=p">
+        <div class="card-icon">{{icon(p.category)}}</div>
+        <h3>{{p.name}}</h3>
+        <p>{{p.suitable_age}} · {{p.is_indoor?'室内':'室外'}} · {{p.duration_minutes}}分钟</p>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <span class="tag">{{p.zone}}</span>
+          <span class="tag" v-if="p.queue_info" style="background:rgba(78,205,196,.1);color:#4ECDC4">排队 {{p.queue_info.queue_time}}分</span>
+        </div>
+      </div>
+    </div>
+    <!-- Detail Modal -->
+    <div v-if="selected" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center" @click.self="selected=null">
+      <div style="background:#fff;border-radius:var(--radius);padding:28px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
+        <h2 style="margin-bottom:12px">{{icon(selected.category)}} {{selected.name}}</h2>
+        <p style="color:var(--text2);margin-bottom:16px">{{selected.description}}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.85rem;margin-bottom:16px">
+          <div><strong>区域：</strong>{{selected.zone}}</div>
+          <div><strong>适合年龄：</strong>{{selected.suitable_age}}</div>
+          <div><strong>体力强度：</strong>{{selected.intensity}}</div>
+          <div><strong>时长：</strong>{{selected.duration_minutes}}分钟</div>
+          <div><strong>室内：</strong>{{selected.is_indoor?'是':'否'}}</div>
+          <div><strong>婴儿车：</strong>{{selected.stroller_friendly?'支持':'不支持'}}</div>
+        </div>
+        <div v-if="selected.tips" style="background:var(--bg);padding:12px;border-radius:10px;font-size:.82rem;margin-bottom:12px">
+          💡 <strong>游玩提示：</strong>{{selected.tips}}
+        </div>
+        <div v-if="selected.safety_notes" style="background:#FFF3F3;padding:12px;border-radius:10px;font-size:.82rem;margin-bottom:12px">
+          ⚠️ <strong>安全提醒：</strong>{{selected.safety_notes}}
+        </div>
+        <button class="btn btn-primary" @click="selected=null" style="width:100%;justify-content:center">关闭</button>
+      </div>
+    </div>
+  </div>`,
+  setup() {
+    const projects = ref([]);
+    const filter = ref('');
+    const selected = ref(null);
+    onMounted(async () => {
+      const r = await get('/projects');
+      if (r.code===200) projects.value = r.data.items;
+    });
+    const filtered = computed(() => filter.value ? projects.value.filter(p=>p.category===filter.value) : projects.value);
+    const icon = (c) => ({ride:'🎠',venue:'🏛️',show:'🎭',water:'🌊'}[c]||'🎪');
+    return {projects, filter, filtered, selected, icon};
+  }
+};
+
+// Chat
+const ChatPage = {
+  template: `
+  <div class="chat-container">
+    <div class="chat-messages" ref="msgBox">
+      <div class="msg bot">
+        <div class="msg-avatar">🎠</div>
+        <div class="msg-bubble"><p>你好！我是乐乐，乐园智能助手 🎉</p><p>可以帮你推荐项目、规划路线、查询排队等，有什么需要帮忙的？</p></div>
+      </div>
+      <template v-for="(m,i) in messages" :key="i">
+        <div class="msg" :class="m.role">
+          <div class="msg-avatar">{{m.role==='bot'?'🎠':'👤'}}</div>
+          <div class="msg-bubble" v-html="m.html"></div>
+        </div>
+      </template>
+      <div v-if="streaming" class="msg bot">
+        <div class="msg-avatar">🎠</div>
+        <div class="msg-bubble">
+          <div v-if="!streamContent" class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <template v-else><span v-html="md(streamContent)"></span><span class="cursor">▍</span></template>
+        </div>
+      </div>
+    </div>
+    <div class="quick-bar">
+      <span class="label">💡 试试问：</span>
+      <button class="quick-btn" v-for="q in quicks" :key="q" @click="send(q)">{{q}}</button>
+    </div>
+    <div class="input-area">
+      <textarea v-model="input" rows="1" placeholder="输入问题..." @keydown.enter.prevent="send(input)" @input="autoResize($event)"></textarea>
+      <button class="send-btn" @click="send(input)" :disabled="streaming||!input.trim()">➤</button>
+    </div>
+  </div>`,
+  setup() {
+    const messages = ref([]);
+    const input = ref('');
+    const streaming = ref(false);
+    const streamContent = ref('');
+    const convId = ref(null);
+    const msgBox = ref(null);
+    const quicks = ['3岁宝宝能玩什么','帮我规划一日游','旋转木马排多久','母婴室在哪','今天有什么表演'];
+
+    function scroll() { nextTick(() => { if(msgBox.value) msgBox.value.scrollTop = msgBox.value.scrollHeight; }); }
+    function autoResize(e) { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,100)+'px'; }
+
+    async function send(text) {
+      text = (text||'').trim();
+      if (!text || streaming.value) return;
+      input.value = '';
+      messages.value.push({role:'user', html:'<p>'+esc(text)+'</p>'});
+      scroll();
+      streaming.value = true;
+      streamContent.value = '';
+
+      try {
+        const body = {message:text};
+        if (convId.value) body.conversation_id = convId.value;
+        if (!user.isLoggedIn) {
+          streamContent.value = '';
+          messages.value.push({role:'bot', html: '<p>请先登录后再使用 AI 助手哦！</p><p><a href="#/login" style="color:var(--primary);font-weight:600">👉 点击登录</a></p>'});
+          streaming.value = false;
+          return;
+        }
+        const r = await post('/chat/message', body);
+        if (r.code===200) {
+          convId.value = r.data.conversation_id;
+          const full = r.data.answer || '抱歉，暂时无法回答。';
+          for (let i = 0; i < full.length; i += 3) {
+            streamContent.value = full.substring(0, i+3);
+            scroll();
+            await new Promise(resolve => setTimeout(resolve, 20));
+          }
+          streamContent.value = full;
+          messages.value.push({role:'bot', html: md(full)});
+        } else if (r.code===40101 || r.code===40102 || r.code===401) {
+          user.logout();
+          messages.value.push({role:'bot', html: '<p>登录已过期，请重新登录</p><p><a href="#/login" style="color:var(--primary);font-weight:600">👉 重新登录</a></p>'});
+        } else {
+          messages.value.push({role:'bot', html:'<p style="color:#e74c3c">错误: '+esc(r.message)+'</p>'});
+        }
+      } catch(e) {
+        messages.value.push({role:'bot', html:'<p style="color:#e74c3c">网络错误，请重试</p>'});
+      }
+      streaming.value = false;
+      streamContent.value = '';
+      scroll();
+    }
+
+    return {messages, input, streaming, streamContent, msgBox, quicks, send, autoResize, md, esc};
+  }
+};
+
+// Tickets
+const TicketsPage = {
+  template: `
+  <div class="section container">
+    <div class="section-title">🎫 在线购票</div>
+    <div v-if="!user.isLoggedIn" style="text-align:center;padding:40px">
+      <p style="color:var(--text2);margin-bottom:16px">请先登录后购票</p>
+      <router-link to="/login" class="btn btn-primary">去登录</router-link>
+    </div>
+    <template v-else>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+        <div class="ticket-card" v-for="t in prices" :key="t.id" @click="toggle(t.id)" :style="selected.has(t.id)?'border-color:var(--primary);background:rgba(255,107,53,.02)':''">
+          <div class="ticket-info">
+            <h3>{{t.name}}</h3>
+            <p>{{t.description}}</p>
+          </div>
+          <div style="text-align:right">
+            <div class="ticket-price">¥{{t.discount_price||t.price}}<span class="original" v-if="t.discount_price">¥{{t.price}}</span></div>
+            <div style="margin-top:6px">
+              <button class="btn btn-sm btn-outline" @click.stop="qty[t.id]=Math.max(0,(qty[t.id]||0)-1)">-</button>
+              <span style="margin:0 8px;font-weight:700">{{qty[t.id]||0}}</span>
+              <button class="btn btn-sm btn-outline" @click.stop="qty[t.id]=(qty[t.id]||0)+1">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
+        <label style="font-size:.85rem">游玩日期：</label>
+        <input type="date" v-model="visitDate" style="border:1px solid var(--border);border-radius:8px;padding:6px 12px">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:1.1rem;font-weight:700">合计：<span style="color:var(--primary)">¥{{total}}</span></div>
+        <button class="btn btn-primary" @click="submitOrder" :disabled="total===0">提交订单</button>
+      </div>
+      <div v-if="orderResult" style="margin-top:20px;background:#f0fff4;border:1px solid #c6f6d5;border-radius:12px;padding:16px">
+        <h3 style="color:#38a169;margin-bottom:8px">✅ 下单成功！</h3>
+        <p style="font-size:.85rem">订单号：{{orderResult.order_no}}</p>
+        <p style="font-size:.85rem">应付：¥{{orderResult.pay_amount}}</p>
+        <button class="btn btn-primary btn-sm" style="margin-top:8px" @click="payOrder(orderResult.order_no)">模拟支付</button>
+      </div>
+    </template>
+  </div>`,
+  setup() {
+    const prices = ref([]);
+    const selected = ref(new Set());
+    const qty = ref({});
+    const visitDate = ref(new Date().toISOString().split('T')[0]);
+    const orderResult = ref(null);
+
+    onMounted(async () => {
+      const r = await get('/tickets/prices');
+      if (r.code===200) prices.value = r.data;
+    });
+
+    function toggle(id) { if(selected.value.has(id)) selected.value.delete(id); else selected.value.add(id); }
+    const total = computed(() => prices.value.reduce((s,t) => s + (t.discount_price||t.price) * (qty.value[t.id]||0), 0));
+
+    async function submitOrder() {
+      const items = Object.entries(qty.value).filter(([,v])=>v>0).map(([k,v])=>({ticket_type_id:Number(k),quantity:v}));
+      if (!items.length) return alert('请选择票种和数量');
+      const r = await post('/tickets/orders', {visit_date:visitDate.value, items});
+      if (r.code===200) orderResult.value = r.data;
+      else alert(r.message);
+    }
+    async function payOrder(orderNo) {
+      const r = await post('/tickets/orders/' + orderNo + '/pay');
+      if (r.code===200) { alert('支付成功！电子票二维码：' + r.data.qr_code); orderResult.value=null; }
+      else alert(r.message);
+    }
+
+    return {prices, selected, qty, visitDate, orderResult, toggle, total, submitOrder, payOrder, user};
+  }
+};
+
+// Orders
+const OrdersPage = {
+  template: `
+  <div class="section container">
+    <div class="section-title">📋 我的订单</div>
+    <div v-if="!user.isLoggedIn" style="text-align:center;padding:40px">
+      <p style="color:var(--text2);margin-bottom:16px">请先登录后查看订单</p>
+      <router-link to="/login" class="btn btn-primary">去登录</router-link>
+    </div>
+    <template v-else>
+      <!-- 筛选 -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn btn-sm" :class="filter===''?'btn-primary':'btn-outline'" @click="filter='';load(1)">全部</button>
+        <button class="btn btn-sm" :class="filter==='unpaid'?'btn-primary':'btn-outline'" @click="filter='unpaid';load(1)">待支付</button>
+        <button class="btn btn-sm" :class="filter==='confirmed'?'btn-primary':'btn-outline'" @click="filter='confirmed';load(1)">已支付</button>
+        <button class="btn btn-sm" :class="filter==='cancelled'?'btn-primary':'btn-outline'" @click="filter='cancelled';load(1)">已取消</button>
+        <span style="flex:1"></span>
+        <router-link to="/tickets" class="btn btn-primary btn-sm">+ 购票</router-link>
+      </div>
+
+      <!-- 订单列表 -->
+      <div v-if="loading" style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>
+      <div v-else-if="!orders.length" style="text-align:center;padding:40px;color:var(--text3)">
+        暂无订单
+        <div style="margin-top:12px"><router-link to="/tickets" class="btn btn-primary">去购票</router-link></div>
+      </div>
+      <div v-else style="display:flex;flex-direction:column;gap:12px">
+        <div v-for="o in orders" :key="o.order_no"
+          style="background:#fff;border-radius:var(--radius);padding:20px;border:1px solid var(--border);transition:.2s"
+          :style="expanded===o.order_no ? 'border-color:var(--primary)' : ''">
+
+          <div style="display:flex;justify-content:space-between;align-items:flex-start" @click="toggleExpand(o.order_no)" style="cursor:pointer">
+            <div>
+              <div style="font-size:.88rem;font-weight:600;margin-bottom:4px">
+                订单 {{ o.order_no.slice(0,16) }}...
+                <span v-if="o.pay_status==='paid'&&o.status==='confirmed'" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.72rem;background:rgba(78,205,196,.12);color:#2ecc71;font-weight:600">已支付</span>
+                <span v-else-if="o.pay_status==='unpaid'" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.72rem;background:rgba(255,107,53,.12);color:var(--primary);font-weight:600">待支付</span>
+                <span v-else-if="o.status==='cancelled'" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.72rem;background:rgba(180,180,180,.12);color:var(--text3);font-weight:600">已取消</span>
+                <span v-else-if="o.pay_status==='refunding'" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.72rem;background:rgba(255,200,50,.12);color:#f39c12;font-weight:600">退款中</span>
+                <span v-else style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.72rem;background:rgba(180,180,180,.12);color:var(--text3);font-weight:600">{{o.status}}</span>
+              </div>
+              <div style="font-size:.8rem;color:var(--text3);display:flex;gap:16px;flex-wrap:wrap">
+                <span>📅 {{o.visit_date}}</span>
+                <span>💰 ¥{{o.pay_amount}}<span v-if="o.discount_amount>0" style="text-decoration:line-through;color:var(--text3);margin-left:4px">¥{{o.total_amount}}</span></span>
+                <span>🕐 {{o.created_at?.slice(0,10) || ''}}</span>
+              </div>
+            </div>
+            <div style="font-size:.8rem;color:var(--primary)">{{expanded===o.order_no ? '收起 ▲' : '展开 ▼'}}</div>
+          </div>
+
+          <!-- 展开详情 -->
+          <div v-if="expanded===o.order_no" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;margin-bottom:16px">
+              <div><strong>订单号：</strong>{{o.order_no}}</div>
+              <div><strong>游玩日期：</strong>{{o.visit_date}}</div>
+              <div><strong>总金额：</strong>¥{{o.total_amount}}</div>
+              <div><strong>优惠：</strong>¥{{o.discount_amount}}</div>
+              <div><strong>实付：</strong>¥{{o.pay_amount}}</div>
+              <div><strong>状态：</strong>{{statusText(o)}}</div>
+              <div v-if="o.qr_code" style="grid-column:1/-1"><strong>电子票：</strong>{{o.qr_code}}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button v-if="o.pay_status==='unpaid'" class="btn btn-primary btn-sm" @click="pay(o.order_no)">💳 去支付</button>
+              <button v-if="o.pay_status==='unpaid'||(o.pay_status==='paid'&&o.status==='confirmed')" class="btn btn-outline btn-sm" @click="cancel(o.order_no)" style="color:#e74c3c;border-color:#e74c3c">取消订单</button>
+              <button v-if="o.qr_code" class="btn btn-outline btn-sm" @click="showQR(o)">📱 查看二维码</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div v-if="totalPages>1" style="display:flex;justify-content:center;gap:8px;margin-top:20px">
+        <button class="btn btn-sm btn-outline" :disabled="page<=1" @click="load(page-1)">← 上一页</button>
+        <span style="padding:6px 12px;font-size:.85rem;color:var(--text2)">{{page}} / {{totalPages}}</span>
+        <button class="btn btn-sm btn-outline" :disabled="page>=totalPages" @click="load(page+1)">下一页 →</button>
+      </div>
+
+      <!-- 二维码弹窗 -->
+      <div v-if="qrOrder" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center" @click.self="qrOrder=null">
+        <div style="background:#fff;border-radius:var(--radius);padding:32px;text-align:center;max-width:360px">
+          <div style="font-size:.85rem;color:var(--text2);margin-bottom:12px">入园扫码凭证</div>
+          <div style="background:#fff;border:2px dashed var(--primary);border-radius:12px;padding:20px;margin-bottom:12px;display:inline-block">
+            <div style="font-size:.7rem;color:var(--text3);margin-bottom:8px;letter-spacing:1px">{{qrOrder.order_no}}</div>
+            <div style="font-size:2rem;font-weight:800;color:var(--text);letter-spacing:8px;font-family:monospace">{{qrOrder.qr_code.slice(-8)}}</div>
+          </div>
+          <div style="font-size:.78rem;color:var(--text3)">二维码已发送至您的账号</div>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px" @click="qrOrder=null">关闭</button>
+        </div>
+      </div>
+    </template>
+  </div>`,
+  setup() {
+    const orders = ref([]);
+    const page = ref(1);
+    const total = ref(0);
+    const pageSize = 10;
+    const filter = ref('');
+    const loading = ref(false);
+    const expanded = ref(null);
+    const qrOrder = ref(null);
+
+    const totalPages = computed(() => Math.ceil(total.value / pageSize));
+
+    function statusText(o) {
+      if (o.pay_status === 'paid' && o.status === 'confirmed') return '已支付';
+      if (o.pay_status === 'unpaid') return '待支付';
+      if (o.status === 'cancelled') return '已取消';
+      if (o.pay_status === 'refunding') return '退款中';
+      return o.status || o.pay_status;
+    }
+
+    async function load(p) {
+      page.value = p || 1;
+      loading.value = true;
+      try {
+        const r = await get('/tickets/orders?page=' + page.value + '&page_size=' + pageSize);
+        if (r.code === 200) {
+          let all = r.data.items || [];
+          if (filter.value === 'unpaid') all = all.filter(o => o.pay_status === 'unpaid');
+          else if (filter.value === 'confirmed') all = all.filter(o => o.pay_status === 'paid' && o.status === 'confirmed');
+          else if (filter.value === 'cancelled') all = all.filter(o => o.status === 'cancelled');
+          orders.value = all;
+          total.value = r.data.total || 0;
+        } else {
+          orders.value = [];
+          total.value = 0;
+        }
+      } catch(e) {
+        orders.value = [];
+        total.value = 0;
+      }
+      loading.value = false;
+    }
+
+    onMounted(() => load(1));
+
+    function toggleExpand(orderNo) {
+      expanded.value = expanded.value === orderNo ? null : orderNo;
+    }
+
+    async function pay(orderNo) {
+      const r = await post('/tickets/orders/' + orderNo + '/pay');
+      if (r.code === 200) {
+        alert('✅ 支付成功！电子票：' + r.data.qr_code);
+        await load(page.value);
+      } else {
+        alert(r.message || '支付失败');
+      }
+    }
+
+    async function cancel(orderNo) {
+      if (!confirm('确定要取消这个订单吗？')) return;
+      const r = await post('/tickets/orders/' + orderNo + '/cancel');
+      if (r.code === 200) {
+        alert('✅ 订单已取消');
+        await load(page.value);
+      } else {
+        alert(r.message || '取消失败');
+      }
+    }
+
+    function showQR(o) {
+      qrOrder.value = o;
+    }
+
+    return {user, orders, page, total, filter, loading, expanded, qrOrder, totalPages, statusText, load, toggleExpand, pay, cancel, showQR};
+  }
+};
+
+// Queue
+const QueuePage = {
+  template: `
+  <div class="section container">
+    <div class="section-title">📱 智能排队</div>
+    <div v-if="!user.isLoggedIn" style="text-align:center;padding:40px">
+      <p style="color:var(--text2);margin-bottom:16px">请先登录后使用排队功能</p>
+      <router-link to="/login" class="btn btn-primary">去登录</router-link>
+    </div>
+    <template v-else>
+      <div v-if="myQueues.length" style="margin-bottom:24px">
+        <h3 style="margin-bottom:12px;font-size:1rem">我的排队</h3>
+        <div class="grid-3">
+          <div class="queue-card" v-for="q in myQueues" :key="q.project_id">
+            <div class="number">{{q.my_number}}</div>
+            <div class="label">{{q.project_name}}</div>
+            <div style="font-size:.82rem;color:var(--text2);margin-top:8px">前方 {{q.ahead_count}} 组 · 约 {{q.estimated_wait}} 分钟</div>
+            <button class="btn btn-outline btn-sm" style="margin-top:10px" @click="cancelQ(q.project_id)">取消排队</button>
+          </div>
+        </div>
+      </div>
+      <h3 style="margin-bottom:12px;font-size:1rem">选择项目取号</h3>
+      <div class="grid-4">
+        <div class="card" v-for="p in queueProjects" :key="p.id" style="text-align:center">
+          <div class="card-icon">{{icon(p.category)}}</div>
+          <h3>{{p.name}}</h3>
+          <p v-if="p.queue_info">排队约 {{p.queue_info.queue_time}} 分钟 · {{p.queue_info.crowd_level}}</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:10px" @click="takeN(p.id)">排队取号</button>
+        </div>
+      </div>
+    </template>
+  </div>`,
+  setup() {
+    const projects = ref([]);
+    const myQueues = ref([]);
+
+    async function load() {
+      try {
+        const r = await get('/projects');
+        if (r.code===200) projects.value = r.data.items.filter(p=>p.status==='open');
+      } catch(e) { console.error('加载项目失败', e); }
+      try {
+        const r2 = await get('/queue/my');
+        if (r2.code===200) myQueues.value = r2.data || [];
+      } catch(e) { console.error('加载排队失败', e); myQueues.value = []; }
+    }
+    onMounted(load);
+
+    const queueProjects = computed(() => projects.value.slice(0, 8));
+    const icon = (c) => ({ride:'🎠',venue:'🏛️',show:'🎭',water:'🌊'}[c]||'🎪');
+
+    async function takeN(pid) {
+      try {
+        const r = await post('/queue/take', {project_id:pid});
+        if (r.code===200) {
+          alert('取号成功！您的号码：' + r.data.queue_number + '，前方 ' + r.data.ahead_count + ' 组');
+          await load();
+        } else {
+          alert(r.message || '取号失败，请重试');
+        }
+      } catch(e) { alert('网络错误，请刷新页面重试'); }
+    }
+    async function cancelQ(pid) {
+      try {
+        const r = await api('/queue/'+pid+'/cancel', {method:'DELETE'});
+        if (r.code===200) { alert('已取消'); await load(); }
+        else alert(r.message || '取消失败');
+      } catch(e) { alert('网络错误，请重试'); }
+    }
+    return {projects, myQueues, queueProjects, icon, takeN, cancelQ, user};
+  }
+};
+
+// Weather
+const WeatherPage = {
+  template: `
+  <div class="section container" style="max-width:600px">
+    <div class="section-title">🌤️ 今日天气</div>
+
+    <!-- 加载中 -->
+    <div v-if="loading" style="text-align:center;padding:40px;color:var(--text3)">
+      <div style="font-size:2rem;margin-bottom:12px">🌤️</div>
+      <div>获取本地天气中...</div>
+    </div>
+
+    <!-- 错误 -->
+    <div v-else-if="error" style="text-align:center;padding:40px">
+      <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+      <p style="color:var(--text2);margin-bottom:12px">{{error}}</p>
+      <button class="btn btn-primary btn-sm" @click="fetchWeather">重新获取</button>
+    </div>
+
+    <!-- 天气卡片 -->
+    <template v-else-if="weather">
+      <!-- 主卡片 -->
+      <div :style="{background:'linear-gradient(135deg,'+bgColor1+','+bgColor2+')',borderRadius:'var(--radius)',padding:'32px',color:'#fff',marginBottom:'16px',textAlign:'center'}">
+        <div style="font-size:3rem;margin-bottom:8px">{{weatherIcon}}</div>
+        <div style="font-size:3rem;font-weight:800;margin-bottom:4px">{{weather.current_temp}}°C</div>
+        <div style="font-size:1rem;opacity:.9;margin-bottom:8px">{{weather.weather_desc}}</div>
+        <div style="font-size:.82rem;opacity:.7">{{weather.location}}</div>
+      </div>
+
+      <!-- 详情网格 -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">💧 湿度</div>
+          <div style="font-size:1.2rem;font-weight:700">{{weather.humidity}}%</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">💨 风速</div>
+          <div style="font-size:1.2rem;font-weight:700">{{weather.wind}}</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">🌡️ 体感</div>
+          <div style="font-size:1.2rem;font-weight:700">{{weather.feels_like}}°C</div>
+        </div>
+      </div>
+
+      <!-- 今日预报 -->
+      <div style="background:#fff;border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:16px">
+        <h3 style="font-size:.9rem;font-weight:600;margin-bottom:12px">📊 今日预报</h3>
+        <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px">
+          <div v-for="h in weather.hourly" :key="h.time"
+            style="flex-shrink:0;text-align:center;padding:8px 10px;min-width:60px">
+            <div style="font-size:.72rem;color:var(--text3);margin-bottom:4px">{{h.time}}</div>
+            <div style="font-size:1.1rem;margin-bottom:4px">{{h.icon}}</div>
+            <div style="font-size:.85rem;font-weight:600">{{h.temp}}°</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 游玩建议 -->
+      <div style="background:var(--bg);border-radius:var(--radius);padding:20px;border:1px solid var(--border)">
+        <h3 style="font-size:.9rem;font-weight:600;margin-bottom:8px">💡 游玩建议</h3>
+        <p style="font-size:.85rem;color:var(--text2);line-height:1.7">{{suggestion}}</p>
+      </div>
+    </template>
+  </div>`,
+  setup() {
+    const weather = ref(null);
+    const loading = ref(true);
+    const error = ref(null);
+
+    const weatherIcon = computed(() => {
+      if (!weather.value) return '🌤️';
+      const desc = (weather.value.weather_desc || '').toLowerCase();
+      if (desc.includes('晴')) return '☀️';
+      if (desc.includes('多云') || desc.includes('阴')) return '⛅';
+      if (desc.includes('雨')) return '🌧️';
+      if (desc.includes('雪')) return '❄️';
+      if (desc.includes('雾')) return '🌫️';
+      if (desc.includes('雷')) return '⛈️';
+      return '🌤️';
+    });
+
+    const bgColor1 = computed(() => {
+      const desc = (weather.value?.weather_desc || '').toLowerCase();
+      if (desc.includes('雨')) return '#4A6FA5';
+      if (desc.includes('雪')) return '#7BA7C9';
+      if (desc.includes('雾')) return '#8E9EAB';
+      if (desc.includes('晴')) return '#FF8F5E';
+      return '#6CB4EE';
+    });
+
+    const bgColor2 = computed(() => {
+      const desc = (weather.value?.weather_desc || '').toLowerCase();
+      if (desc.includes('雨')) return '#2D4A7A';
+      if (desc.includes('雪')) return '#5A8EAA';
+      if (desc.includes('雾')) return '#6B7B88';
+      if (desc.includes('晴')) return '#FF6B35';
+      return '#4A90D9';
+    });
+
+    const suggestion = computed(() => {
+      if (!weather.value) return '';
+      const desc = (weather.value.weather_desc || '').toLowerCase();
+      const temp = weather.value.current_temp;
+      let tips = [];
+      if (temp >= 35) tips.push('🥵 高温预警，建议多喝水、注意防暑');
+      else if (temp >= 30) tips.push('☀️ 天气较热，注意防晒补水');
+      else if (temp <= 5) tips.push('🥶 天气寒冷，注意保暖');
+      else if (temp <= 0) tips.push('❄️ 零下低温，做好防寒准备');
+      if (desc.includes('雨')) tips.push('🌂 有雨，记得带伞');
+      if (desc.includes('雪')) tips.push('🧤 下雪路滑，注意行走安全');
+      if (desc.includes('雾')) tips.push('🚗 能见度低，注意出行安全');
+      if (desc.includes('晴') && temp >= 25) tips.push('🧴 建议涂抹防晒霜');
+      if (!tips.length) tips.push('🎠 天气不错，适合游园！');
+      return tips.join('。');
+    });
+
+    async function fetchWeather() {
+      loading.value = true;
+      error.value = null;
+      weather.value = null;
+
+      try {
+        // 用 wttr.in 获取实时天气（自动按 IP 定位）
+        const resp = await fetch('https://wttr.in/?format=j1&lang=zh', {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!resp.ok) throw new Error('天气服务暂不可用');
+        const data = await resp.json();
+
+        const current = data.current_condition?.[0] || {};
+        const area = data.nearest_area?.[0]?.areaName?.[0]?.value || '';
+        const region = data.nearest_area?.[0]?.region?.[0]?.value || '';
+        const country = data.nearest_area?.[0]?.country?.[0]?.value || '';
+
+        // 解析逐小时预报（取今天的）
+        const hourly = [];
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const hours = data.weather?.[0]?.hourly || [];
+        const nowHour = new Date().getHours();
+        for (const h of hours) {
+          const hh = parseInt(h.time?.slice(0, 2) || '0');
+          if (hh >= nowHour && hh < nowHour + 8) { // 显示当前到后面8小时
+            const code = parseInt(h.weatherCode || '113');
+            const icons = {113:'☀️',116:'⛅',119:'☁️',122:'☁️',176:'🌦️',185:'🌧️',200:'⛈️',263:'🌦️',266:'🌦️',281:'🌧️',296:'🌧️',302:'🌧️',308:'🌧️',311:'🌧️',320:'🌧️',326:'🌧️',338:'🌧️',350:'🌧️',359:'🌧️',362:'🌧️',368:'❄️',371:'❄️',377:'❄️',386:'⛈️',389:'⛈️',395:'❄️'};
+            hourly.push({
+              time: String(hh).padStart(2,'0') + ':00',
+              temp: h.tempC || '--',
+              icon: icons[code] || '🌤️',
+            });
+          }
+        }
+
+        const wind = `${current.windspeedKmph || 0}km/h ${current.winddir16Point || ''}`;
+
+        weather.value = {
+          location: [area, region, country].filter(Boolean).join(' · '),
+          current_temp: parseInt(current.temp_C || '0'),
+          feels_like: current.FeelsLikeC || current.temp_C || '0',
+          weather_desc: current.weatherDesc?.[0]?.value || '未知',
+          humidity: current.humidity || '--',
+          wind: wind,
+          hourly: hourly,
+        };
+      } catch (e) {
+        if (e.name === 'TimeoutError') {
+          error.value = '获取天气超时，请检查网络连接';
+        } else {
+          error.value = '天气信息暂时不可用';
+        }
+        // 尝试从后端获取模拟数据作为降级
+        try {
+          const r = await get('/weather');
+          if (r.code === 200 && r.data) {
+            const d = r.data;
+            weather.value = {
+              location: '乐乐亲子乐园',
+              current_temp: d.temperature || 28,
+              feels_like: d.temperature || 28,
+              weather_desc: d.weather || '多云',
+              humidity: d.humidity || 65,
+              wind: `${d.wind_level || 2}级`,
+              hourly: [
+                {time:'09:00',temp:d.temperature,icon:'🌤️'},
+                {time:'12:00',temp:d.temperature,icon:'🌤️'},
+                {time:'15:00',temp:d.temperature,icon:'🌤️'},
+                {time:'18:00',temp:d.temperature,icon:'🌤️'},
+              ],
+            };
+            error.value = null;
+          }
+        } catch(_) {}
+      }
+      loading.value = false;
+    }
+
+    onMounted(fetchWeather);
+
+    return {weather, loading, error, weatherIcon, bgColor1, bgColor2, suggestion, fetchWeather};
+  }
+};
+
+// Schedules
+const SchedulesPage = {
+  template: `
+  <div class="section container">
+    <div class="section-title">🎭 今日演出</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="schedule-item" v-for="s in schedules" :key="s.id">
+        <div class="schedule-time">{{s.start_time}}</div>
+        <div class="schedule-info">
+          <h4>{{s.event_name}}</h4>
+          <p>📍 {{s.location}} · ⏱️ {{s.start_time}}-{{s.end_time}} · 容纳 {{s.capacity||'—'}} 人</p>
+        </div>
+        <span class="tag">{{s.event_type==='show'?'表演':s.event_type==='parade'?'巡游':'活动'}}</span>
+      </div>
+    </div>
+    <div v-if="!schedules.length" style="text-align:center;padding:40px;color:var(--text3)">暂无演出安排</div>
+  </div>`,
+  setup() {
+    const schedules = ref([]);
+    onMounted(async () => {
+      const r = await get('/schedules');
+      if (r.code===200) schedules.value = r.data;
+    });
+    return {schedules};
+  }
+};
+
+// Login
+const LoginPage = {
+  template: `
+  <div class="auth-page">
+    <div class="auth-box">
+      <h2>🎠 登录乐乐乐园</h2>
+      <div class="form-group"><label>手机号</label><input v-model="phone" placeholder="请输入手机号" @keydown.enter="doLogin"></div>
+      <div class="form-group"><label>密码</label><input v-model="password" type="password" placeholder="请输入密码" @keydown.enter="doLogin"></div>
+      <button class="btn btn-primary" @click="doLogin" :disabled="loading">{{loading ? '登录中...' : '登录'}}</button>
+      <p class="auth-switch">没有账号？<router-link to="/register" style="color:var(--primary)">去注册</router-link></p>
+    </div>
+  </div>`,
+  setup() {
+    const phone = ref('');
+    const password = ref('');
+    const loading = ref(false);
+    const router = VueRouter.useRouter();
+
+    async function doLogin() {
+      if (!phone.value || !password.value) return alert('请输入手机号和密码');
+      if (!/^1[3-9]\d{9}$/.test(phone.value)) return alert('请输入正确的11位手机号');
+      loading.value = true;
+      try {
+        if (await user.login(phone.value, password.value)) router.push('/');
+      } finally {
+        loading.value = false;
+      }
+    }
+    return {phone, password, loading, doLogin};
+  }
+};
+
+// Register
+const RegisterPage = {
+  template: `
+  <div class="auth-page">
+    <div class="auth-box">
+      <h2>🎠 注册账号</h2>
+      <div class="form-group"><label>昵称</label><input v-model="nickname" placeholder="请输入昵称"></div>
+      <div class="form-group"><label>手机号</label><input v-model="phone" placeholder="请输入手机号"></div>
+      <div class="form-group"><label>密码</label><input v-model="password" type="password" placeholder="请输入密码（6位以上）"></div>
+      <button class="btn btn-primary" @click="doRegister">注册</button>
+      <p class="auth-switch">已有账号？<router-link to="/login" style="color:var(--primary)">去登录</router-link></p>
+    </div>
+  </div>`,
+  setup() {
+    const nickname = ref(''); const phone = ref(''); const password = ref('');
+    const router = VueRouter.useRouter();
+    async function doRegister() {
+      if (!nickname.value || !phone.value || !password.value) return alert('请填写完整信息');
+      if (!/^1[3-9]\d{9}$/.test(phone.value)) return alert('请输入正确的11位手机号');
+      if (password.value.length < 6) return alert('密码长度不能少于6位');
+      if (await user.register(phone.value, password.value, nickname.value)) router.push('/');
+    }
+    return {nickname, phone, password, doRegister};
+  }
+};
+
+// ==================== Profile Page ====================
+const ProfilePage = {
+  template: `
+  <div class="section container" style="max-width:600px">
+    <div class="section-title">👤 个人中心</div>
+    <div v-if="!user.isLoggedIn" style="text-align:center;padding:40px">
+      <p style="color:var(--text2);margin-bottom:16px">请先登录</p>
+      <router-link to="/login" class="btn btn-primary">去登录</router-link>
+    </div>
+    <template v-else>
+      <!-- 头像 -->
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#FF6B9D);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff">
+          {{form.nickname ? form.nickname[0] : '?'}}
+        </div>
+        <div style="font-size:1.1rem;font-weight:700">{{form.nickname}}</div>
+        <div style="font-size:.82rem;color:var(--text3)">{{maskedPhone}}</div>
+      </div>
+
+      <!-- 基本信息 -->
+      <div style="background:#fff;border-radius:var(--radius);padding:24px;border:1px solid var(--border);margin-bottom:16px">
+        <h3 style="font-size:.95rem;margin-bottom:16px">基本信息</h3>
+        <div class="form-group"><label>昵称</label><input v-model="form.nickname" placeholder="请输入昵称"></div>
+        <button class="btn btn-primary btn-sm" @click="saveBasic" :disabled="saving">{{saving ? '保存中...' : '保存昵称'}}</button>
+      </div>
+
+      <!-- 宝宝信息 -->
+      <div style="background:#fff;border-radius:var(--radius);padding:24px;border:1px solid var(--border);margin-bottom:16px">
+        <h3 style="font-size:.95rem;margin-bottom:16px">👶 宝宝信息</h3>
+        <div class="form-group"><label>宝宝年龄</label>
+          <select v-model="profile.child_age">
+            <option value="">请选择</option>
+            <option value="0-1岁">0-1岁</option>
+            <option value="1-3岁">1-3岁</option>
+            <option value="3-6岁">3-6岁</option>
+            <option value="6-12岁">6-12岁</option>
+            <option value="12岁以上">12岁以上</option>
+          </select>
+        </div>
+        <div class="form-group"><label>兴趣偏好</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+            <button v-for="tag in interestOptions" :key="tag"
+              class="btn btn-sm" :class="profile.interests.includes(tag) ? 'btn-primary' : 'btn-outline'"
+              @click="toggleInterest(tag)" style="border-radius:14px">
+              {{tag}}
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" @click="saveProfile" :disabled="saving">{{saving ? '保存中...' : '保存宝宝信息'}}</button>
+      </div>
+
+      <!-- 修改密码 -->
+      <div style="background:#fff;border-radius:var(--radius);padding:24px;border:1px solid var(--border);margin-bottom:16px">
+        <h3 style="font-size:.95rem;margin-bottom:16px">🔒 修改密码</h3>
+        <div class="form-group"><label>当前密码</label><input v-model="pwdForm.oldPassword" type="password" placeholder="请输入当前密码"></div>
+        <div class="form-group"><label>新密码</label><input v-model="pwdForm.newPassword" type="password" placeholder="6-32位新密码"></div>
+        <div class="form-group"><label>确认新密码</label><input v-model="pwdForm.confirmPassword" type="password" placeholder="再次输入新密码"></div>
+        <div v-if="pwdForm.message" style="font-size:.82rem;margin-bottom:10px" :style="{color: pwdForm.messageType === 'error' ? '#e74c3c' : '#2ecc71'}">{{ pwdForm.message }}</div>
+        <button class="btn btn-primary btn-sm" @click="changePassword" :disabled="pwdForm.saving">{{ pwdForm.saving ? '修改中...' : '修改密码' }}</button>
+      </div>
+
+      <!-- 我的票据 -->
+      <div style="background:#fff;border-radius:var(--radius);padding:24px;border:1px solid var(--border);margin-bottom:16px">
+        <h3 style="font-size:.95rem;margin-bottom:16px">🎫 我的票据</h3>
+        <div v-if="!tickets.length" style="text-align:center;padding:20px;color:var(--text3);font-size:.85rem">
+          暂无购票记录
+          <div style="margin-top:10px"><router-link to="/tickets" class="btn btn-primary btn-sm">去购票</router-link></div>
+        </div>
+        <div v-else style="display:flex;flex-direction:column;gap:8px">
+          <div v-for="t in tickets" :key="t.order_no"
+            style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg)">
+            <div>
+              <div style="font-size:.85rem;font-weight:600">
+                订单 {{ t.order_no.slice(0,14) }}...
+                <span v-if="t.active" style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.7rem;background:rgba(78,205,196,.12);color:#2ecc71;font-weight:600">有效</span>
+                <span v-else style="display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;font-size:.7rem;background:rgba(180,180,180,.12);color:var(--text3);font-weight:600">已过期</span>
+              </div>
+              <div style="font-size:.75rem;color:var(--text3);margin-top:2px">
+                {{ t.visit_date }} · ¥{{ t.pay_amount }} · {{ t.status === 'confirmed' ? '已支付' : t.status }}
+              </div>
+            </div>
+            <div v-if="t.active" style="font-size:.7rem;color:var(--text3)">12h 有效</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作 -->
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" @click="$router.push('/')">返回首页</button>
+        <button class="btn btn-outline" style="color:#e74c3c;border-color:#e74c3c" @click="doLogout">退出登录</button>
+      </div>
+    </template>
+  </div>`,
+  setup() {
+    const form = reactive({nickname: ''});
+    const profile = reactive({child_age: '', interests: []});
+    const tickets = ref([]);
+    const saving = ref(false);
+    const pwdForm = reactive({oldPassword: '', newPassword: '', confirmPassword: '', saving: false, message: '', messageType: 'error'});
+    const interestOptions = ['动物','表演','冒险','科普','水上','手工'];
+    const maskedPhone = computed(() => user.phone || '');
+
+    async function load() {
+      if (!user.isLoggedIn) return;
+      const r = await get('/users/me');
+      if (r.code === 200 && r.data) {
+        form.nickname = r.data.nickname || '';
+        if (r.data.profile) {
+          profile.child_age = r.data.profile.child_age || '';
+          profile.interests = Array.isArray(r.data.profile.interests) ? r.data.profile.interests : [];
+        }
+        tickets.value = r.data.tickets || [];
+      }
+    }
+    onMounted(load);
+
+    function toggleInterest(tag) {
+      const idx = profile.interests.indexOf(tag);
+      if (idx >= 0) profile.interests.splice(idx, 1);
+      else profile.interests.push(tag);
+    }
+
+    async function saveBasic() {
+      if (!form.nickname.trim()) return alert('昵称不能为空');
+      saving.value = true;
+      try {
+        const r = await api('/users/me', {method:'PUT', body: JSON.stringify({nickname: form.nickname})});
+        if (r.code === 200) {
+          user.nickname = form.nickname;
+          localStorage.setItem('nick', form.nickname);
+          alert('保存成功');
+        } else alert(r.message);
+      } finally { saving.value = false; }
+    }
+
+    async function saveProfile() {
+      saving.value = true;
+      try {
+        const r = await api('/users/me/profile', {method:'PUT', body: JSON.stringify({child_age: profile.child_age, interests: profile.interests})});
+        if (r.code === 200) alert('保存成功');
+        else alert(r.message);
+      } finally { saving.value = false; }
+    }
+
+    async function changePassword() {
+      pwdForm.message = '';
+      if (!pwdForm.oldPassword) { pwdForm.message = '请输入当前密码'; return; }
+      if (!pwdForm.newPassword) { pwdForm.message = '请输入新密码'; return; }
+      if (pwdForm.newPassword.length < 6) { pwdForm.message = '新密码至少6位'; return; }
+      if (pwdForm.newPassword !== pwdForm.confirmPassword) { pwdForm.message = '两次输入的新密码不一致'; return; }
+      if (pwdForm.newPassword === pwdForm.oldPassword) { pwdForm.message = '新密码不能与旧密码相同'; return; }
+
+      pwdForm.saving = true;
+      pwdForm.messageType = 'error';
+      try {
+        const r = await api('/auth/password', {method:'PUT', body: JSON.stringify({old_password: pwdForm.oldPassword, new_password: pwdForm.newPassword, confirm_password: pwdForm.confirmPassword})});
+        if (r.code === 200) {
+          pwdForm.message = '✅ 密码修改成功，下次登录请使用新密码';
+          pwdForm.messageType = 'success';
+          pwdForm.oldPassword = '';
+          pwdForm.newPassword = '';
+          pwdForm.confirmPassword = '';
+        } else {
+          pwdForm.message = r.message || '修改失败';
+        }
+      } catch(e) {
+        pwdForm.message = '网络错误';
+      } finally {
+        pwdForm.saving = false;
+      }
+    }
+
+    function doLogout() {
+      user.logout();
+      window.location.hash = '#/';
+    }
+
+    return {user, form, profile, pwdForm, tickets, saving, interestOptions, maskedPhone, toggleInterest, saveBasic, saveProfile, changePassword, doLogout};
+  }
+};
+
+// ==================== Router ====================
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    {path:'/', component: HomePage},
+    {path:'/projects', component: ProjectsPage},
+    {path:'/chat', component: ChatPage},
+    {path:'/tickets', component: TicketsPage},
+    {path:'/orders', component: OrdersPage},
+    {path:'/queue', component: QueuePage},
+    {path:'/weather', component: WeatherPage},
+    {path:'/schedules', component: SchedulesPage},
+    {path:'/login', component: LoginPage},
+    {path:'/register', component: RegisterPage},
+    {path:'/profile', component: ProfilePage},
+  ],
+  scrollBehavior: () => ({top:0}),
+});
+
+// ==================== App ====================
+const app = createApp({
+  setup() {
+    onMounted(() => {
+      if (user.isLoggedIn) user.fetchProfile();
+    });
+    return {user};
+  }
+});
+app.use(router);
+app.mount('#app');
+</script>
+</body>
+</html>

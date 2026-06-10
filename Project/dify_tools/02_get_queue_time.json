@@ -1,0 +1,18 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "get_queue_time", "description": "查询项目排队时间", "version": "1.0.0"},
+  "servers": [{"url": "http://localhost:8000"}],
+  "paths": {
+    "/api/v1/queue/{project_id}": {
+      "get": {
+        "operationId": "get_queue_time",
+        "summary": "查询项目排队时间",
+        "description": "查询指定项目的实时排队人数、预计等待时间和拥挤程度",
+        "parameters": [
+          {"name": "project_id", "in": "path", "description": "项目ID，如1=旋转木马,4=过山车,5=碰碰车", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {"200": {"description": "成功返回排队信息"}}
+      }
+    }
+  }
+}

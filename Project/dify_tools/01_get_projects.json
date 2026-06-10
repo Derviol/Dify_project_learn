@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "get_projects", "description": "查询乐园项目列表", "version": "1.0.0"},
+  "servers": [{"url": "http://localhost:8000"}],
+  "paths": {
+    "/api/v1/projects": {
+      "get": {
+        "operationId": "get_projects",
+        "summary": "查询乐园项目列表",
+        "description": "查询乐园所有项目，支持按区域、类型筛选。返回项目名称、区域、适合年龄、排队信息等。",
+        "parameters": [
+          {"name": "zone", "in": "query", "description": "区域名称：梦幻城堡区、海洋探险区、冒险区、科普区、欢乐农场区", "required": false, "schema": {"type": "string"}},
+          {"name": "category", "in": "query", "description": "项目类型：ride(游乐设施)、venue(场馆)、show(表演)", "required": false, "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "成功返回项目列表"}}
+      }
+    }
+  }
+}

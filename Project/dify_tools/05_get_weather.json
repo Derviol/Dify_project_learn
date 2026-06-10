@@ -1,0 +1,15 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "get_weather", "description": "查询天气信息", "version": "1.0.0"},
+  "servers": [{"url": "http://localhost:8000"}],
+  "paths": {
+    "/api/v1/weather": {
+      "get": {
+        "operationId": "get_weather",
+        "summary": "查询天气信息",
+        "description": "查询乐园所在地区的实时天气，包括温度、湿度、天气状况和游玩建议",
+        "responses": {"200": {"description": "成功返回天气信息"}}
+      }
+    }
+  }
+}

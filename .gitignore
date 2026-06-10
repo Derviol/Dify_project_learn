@@ -1,0 +1,30 @@
+# 环境变量与密钥
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 项目构建
+Project/web/node_modules/
+Project/miniapp/unpackage/dist/
+
+# 日志
+*.log
+logs/
+
+# 测试临时文件
+Project/test_*.py

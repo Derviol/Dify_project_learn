@@ -1,0 +1,140 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "乐乐亲子乐园 API",
+    "description": "乐乐亲子乐园后端 API 工具集，供 Dify Agent 调用",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "本地开发服务器"
+    }
+  ],
+  "paths": {
+    "/api/v1/projects": {
+      "get": {
+        "operationId": "get_projects",
+        "summary": "查询乐园项目列表",
+        "description": "查询乐园所有项目，支持按区域、类型、适合年龄筛选。返回项目名称、区域、适合年龄、排队信息等。",
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "query",
+            "description": "区域名称，如：梦幻城堡区、海洋探险区、冒险区、科普区、欢乐农场区、水上乐园区",
+            "required": false,
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "项目类型：ride(游乐设施)、venue(主题场馆)、show(表演活动)、water(水上项目)",
+            "required": false,
+            "schema": {"type": "string", "enum": ["ride", "venue", "show", "water"]}
+          },
+          {
+            "name": "suitable_age",
+            "in": "query",
+            "description": "适合年龄筛选",
+            "required": false,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "成功返回项目列表"}
+        }
+      }
+    },
+    "/api/v1/queue/{project_id}": {
+      "get": {
+        "operationId": "get_queue_time",
+        "summary": "查询项目排队时间",
+        "description": "查询指定项目的实时排队人数、预计等待时间和拥挤程度",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "项目ID，如：1(旋转木马)、4(过山车)、5(碰碰车)",
+            "required": true,
+            "schema": {"type": "integer"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "成功返回排队信息"}
+        }
+      }
+    },
+    "/api/v1/schedules": {
+      "get": {
+        "operationId": "get_schedules",
+        "summary": "查询活动演出排期",
+        "description": "查询乐园当日或指定日期的演出、巡游、活动排期，包括时间、地点、容纳人数等",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "查询日期，格式 YYYY-MM-DD，默认今天",
+            "required": false,
+            "schema": {"type": "string", "format": "date"}
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "活动类型：show(表演)、parade(巡游)、workshop(手工坊)、special(特别活动)",
+            "required": false,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "成功返回排期列表"}
+        }
+      }
+    },
+    "/api/v1/facilities": {
+      "get": {
+        "operationId": "get_facilities",
+        "summary": "查询园区便利设施",
+        "description": "查询园区内的母婴室、卫生间、餐厅、小吃站、储物柜、医务室等便利设施的位置和信息",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "设施类型：nursing(母婴室)、restroom(卫生间)、restaurant(餐厅)、snack(小吃站)、locker(储物柜)、charging(充电宝)、stroller(婴儿车租赁)、medical(医务室)",
+            "required": false,
+            "schema": {"type": "string"}
+          },
+          {
+            "name": "zone",
+            "in": "query",
+            "description": "所在区域，如：梦幻城堡区、海洋探险区",
+            "required": false,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {"description": "成功返回设施列表"}
+        }
+      }
+    },
+    "/api/v1/weather": {
+      "get": {
+        "operationId": "get_weather",
+        "summary": "查询天气信息",
+        "description": "查询乐园所在地区的实时天气，包括温度、湿度、天气状况、紫外线指数、空气质量，以及游玩建议",
+        "responses": {
+          "200": {"description": "成功返回天气信息"}
+        }
+      }
+    },
+    "/api/v1/tickets/prices": {
+      "get": {
+        "operationId": "get_ticket_prices",
+        "summary": "查询票价信息",
+        "description": "查询乐园所有票种和价格，包括成人票、儿童票、家庭套票、长者票的原价和线上优惠价",
+        "responses": {
+          "200": {"description": "成功返回票价列表"}
+        }
+      }
+    }
+  }
+}

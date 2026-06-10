@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "get_schedules", "description": "查询活动演出排期", "version": "1.0.0"},
+  "servers": [{"url": "http://localhost:8000"}],
+  "paths": {
+    "/api/v1/schedules": {
+      "get": {
+        "operationId": "get_schedules",
+        "summary": "查询活动演出排期",
+        "description": "查询乐园当日或指定日期的演出、巡游、活动排期",
+        "parameters": [
+          {"name": "date", "in": "query", "description": "查询日期，格式YYYY-MM-DD，默认今天", "required": false, "schema": {"type": "string", "format": "date"}},
+          {"name": "type", "in": "query", "description": "活动类型：show(表演)、parade(巡游)", "required": false, "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "成功返回排期列表"}}
+      }
+    }
+  }
+}
